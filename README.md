@@ -1,0 +1,1 @@
+![Functional Testing CI](https://github.com/moshiurrahman2/functional-testing-2507213/actions/workflows/ci.yml/badge.svg)
