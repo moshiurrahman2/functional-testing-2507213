@@ -173,3 +173,60 @@ def test_find_max_wrong_type():
     result = target.find_max("123")
 
     assert result == "3"
+
+
+# =========================================================
+# 7. get_price()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "prices, item, expected",
+    [
+        ({"apple": 10, "banana": 20}, "apple", 10),
+        ({"pen": 5, "book": 50}, "book", 50),
+        ({"milk": 30}, "milk", 30),
+    ],
+)
+def test_get_price(prices, item, expected):
+    result = target.get_price(prices, item)
+
+    assert result == expected
+
+
+def test_get_price_missing_item():
+    with pytest.raises(KeyError):
+        target.get_price({"apple": 10}, "orange")
+
+
+# =========================================================
+# 8. swap()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "pair, expected",
+    [
+        ((1, 2), (2, 1)),
+        (("a", "b"), ("b", "a")),
+        ((10, 20), (20, 10)),
+    ],
+)
+def test_swap(pair, expected):
+    result = target.swap(pair)
+
+    assert result == expected
+
+
+def test_swap_empty():
+    with pytest.raises(ValueError):
+        target.swap(())
+
+
+def test_swap_one_value():
+    with pytest.raises(ValueError):
+        target.swap((1,))
+
+
+def test_swap_three_values():
+    with pytest.raises(ValueError):
+        target.swap((1, 2, 3))
+
