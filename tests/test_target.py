@@ -59,3 +59,60 @@ def test_celsius_to_fahrenheit(celsius, expected):
 def test_celsius_to_fahrenheit_wrong_type():
     with pytest.raises(TypeError):
         target.celsius_to_fahrenheit("100")
+
+
+# =========================================================
+# 3. count_vowels()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("hello", 2),
+        ("HELLO", 2),
+        ("aeiou", 5),
+        ("AEIOU", 5),
+        ("xyz", 0),
+        ("", 0),
+        ("Hello World", 3),
+    ],
+)
+def test_count_vowels(text, expected):
+    result = target.count_vowels(text)
+
+    assert result == expected
+    assert isinstance(result, int)
+
+
+def test_count_vowels_wrong_type():
+    with pytest.raises(
+        TypeError,
+        match="text must be a string"
+    ):
+        target.count_vowels(123)
+
+
+# =========================================================
+# 4. invert()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "flag, expected",
+    [
+        (True, False),
+        (False, True),
+    ],
+)
+def test_invert(flag, expected):
+    result = target.invert(flag)
+
+    assert result is expected
+    assert isinstance(result, bool)
+
+
+def test_invert_wrong_type():
+    with pytest.raises(
+        TypeError,
+        match="flag must be True or False"
+    ):
+        target.invert(1)
