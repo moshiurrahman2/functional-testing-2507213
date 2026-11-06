@@ -361,3 +361,84 @@ def test_power_wrong_type():
     with pytest.raises(TypeError):
         target.power("2", 3)
 
+
+# =========================================================
+# 14. square_root()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "x, expected",
+    [
+        (0, 0),
+        (4, 2),
+        (9, 3),
+        (25, 5),
+    ],
+)
+def test_square_root(x, expected):
+    assert target.square_root(x) == expected
+
+
+def test_square_root_negative():
+    with pytest.raises(ValueError):
+        target.square_root(-4)
+
+
+def test_square_root_wrong_type():
+    with pytest.raises(TypeError):
+        target.square_root("4")
+
+
+# =========================================================
+# 15. factorial()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "n, expected",
+    [
+        (0, 1),
+        (1, 1),
+        (3, 6),
+        (5, 120),
+    ],
+)
+def test_factorial(n, expected):
+    assert target.factorial(n) == expected
+
+
+def test_factorial_negative():
+    with pytest.raises(ValueError):
+        target.factorial(-5)
+
+
+def test_factorial_wrong_type():
+    with pytest.raises(TypeError):
+        target.factorial("5")
+
+
+# =========================================================
+# 16. average()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "numbers, expected",
+    [
+        ([1, 2, 3], 2),
+        ([10, 20, 30], 20),
+        ([2, 4], 3),
+        ([5], 5),
+    ],
+)
+def test_average(numbers, expected):
+    assert target.average(numbers) == expected
+
+
+def test_average_empty():
+    with pytest.raises(ValueError):
+        target.average([])
+
+
+def test_average_wrong_type():
+    with pytest.raises(TypeError):
+        target.average([1, "2", 3])
+
