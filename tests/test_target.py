@@ -284,3 +284,80 @@ def test_is_leap_year_wrong_type():
         target.is_leap_year("2024")
 
 
+# =========================================================
+# 11. to_int()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        ("10", 10),
+        ("25", 25),
+        (10.5, 10),
+        (0, 0),
+    ],
+)
+def test_to_int(value, expected):
+    result = target.to_int(value)
+
+    assert result == expected
+    assert isinstance(result, int)
+
+
+def test_to_int_bool_true():
+    with pytest.raises(TypeError):
+        target.to_int(True)
+
+
+def test_to_int_bool_false():
+    with pytest.raises(TypeError):
+        target.to_int(False)
+
+
+# =========================================================
+# 12. divide()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        (10, 2, 5),
+        (20, 4, 5),
+        (9, 3, 3),
+        (7, 2, 3.5),
+    ],
+)
+def test_divide(a, b, expected):
+    result = target.divide(a, b)
+
+    assert result == expected
+
+
+def test_divide_by_zero():
+    with pytest.raises(ZeroDivisionError):
+        target.divide(10, 0)
+
+
+# =========================================================
+# 13. power()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "base, exponent, expected",
+    [
+        (2, 3, 8),
+        (5, 2, 25),
+        (10, 0, 1),
+        (2, -1, 0.5),
+    ],
+)
+def test_power(base, exponent, expected):
+    result = target.power(base, exponent)
+
+    assert result == expected
+
+
+def test_power_wrong_type():
+    with pytest.raises(TypeError):
+        target.power("2", 3)
+
