@@ -230,3 +230,57 @@ def test_swap_three_values():
     with pytest.raises(ValueError):
         target.swap((1, 2, 3))
 
+
+# =========================================================
+# 9. common_items()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "set_a, set_b, expected",
+    [
+        ({1, 2, 3}, {2, 3, 4}, {2, 3}),
+        ({"apple", "banana"}, {"banana", "orange"}, {"banana"}),
+        ({1, 2}, {3, 4}, set()),
+    ],
+)
+def test_common_items(set_a, set_b, expected):
+    result = target.common_items(set_a, set_b)
+
+    assert result == expected
+
+
+# =========================================================
+# 10. is_leap_year()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "year, expected",
+    [
+        (2000, True),
+        (2024, True),
+        (2023, False),
+        (1900, False),
+        (2028, True),
+    ],
+)
+def test_is_leap_year(year, expected):
+    result = target.is_leap_year(year)
+
+    assert result is expected
+
+
+def test_is_leap_year_zero():
+    with pytest.raises(ValueError):
+        target.is_leap_year(0)
+
+
+def test_is_leap_year_negative():
+    with pytest.raises(ValueError):
+        target.is_leap_year(-2024)
+
+
+def test_is_leap_year_wrong_type():
+    with pytest.raises(TypeError):
+        target.is_leap_year("2024")
+
+
