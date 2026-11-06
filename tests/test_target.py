@@ -116,3 +116,60 @@ def test_invert_wrong_type():
         match="flag must be True or False"
     ):
         target.invert(1)
+
+
+# =========================================================
+# 5. greet()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        (None, "Hello, Guest!"),
+        ("", "Hello, Guest!"),
+        ("   ", "Hello, Guest!"),
+        ("Alice", "Hello, Alice!"),
+        ("Bob", "Hello, Bob!"),
+    ],
+)
+def test_greet(name, expected):
+    result = target.greet(name)
+
+    assert result == expected
+    assert isinstance(result, str)
+
+
+def test_greet_default():
+    result = target.greet()
+
+    assert result == "Hello, Guest!"
+
+
+# =========================================================
+# 6. find_max()
+# =========================================================
+
+@pytest.mark.parametrize(
+    "numbers, expected",
+    [
+        ([1, 2, 3], 3),
+        ([10, 5, 7], 10),
+        ([-1, -5, -2], -1),
+        ([42], 42),
+    ],
+)
+def test_find_max(numbers, expected):
+    result = target.find_max(numbers)
+
+    assert result == expected
+
+
+def test_find_max_empty():
+    with pytest.raises(ValueError):
+        target.find_max([])
+
+
+def test_find_max_wrong_type():
+    result = target.find_max("123")
+
+    assert result == "3"
