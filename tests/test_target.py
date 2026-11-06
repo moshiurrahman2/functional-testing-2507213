@@ -6,6 +6,7 @@ import target
 # 1. is_adult()
 # =========================================================
 
+
 @pytest.mark.parametrize(
     "age, expected",
     [
@@ -441,4 +442,3 @@ def test_average_empty():
 def test_average_wrong_type():
     with pytest.raises(TypeError):
         target.average([1, "2", 3])
-
