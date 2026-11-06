@@ -1,6 +1,6 @@
 import pytest
-import target
 
+import target
 
 # =========================================================
 # 1. is_adult()
