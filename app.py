@@ -1,10 +1,9 @@
 
 import os
-import json
-import inspect
-import target
 
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, request
+
+import target
 
 app = Flask(__name__)
 
@@ -96,7 +95,7 @@ def run_function():
             "result_type": type(result).__name__
         })
 
-    except Exception as error:
+    except (ValueError, TypeError, ZeroDivisionError, OverflowError, AttributeError) as error:
         return jsonify({
             "success": False,
             "error": str(error),
@@ -115,4 +114,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")))
