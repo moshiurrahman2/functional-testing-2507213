@@ -20,15 +20,46 @@ HTML = """
 <head>
     <title>Functional Testing App</title>
     <style>
-        body { font-family: Arial; max-width: 700px; margin: 50px auto; }
-        input, select, button { padding: 10px; margin: 8px 0; width: 100%; }
-        button { background: #1769aa; color: white; border: 0; cursor: pointer; }
-        pre { background: #eee; padding: 15px; white-space: pre-wrap; }
+        body {
+            font-family: Arial;
+            max-width: 700px;
+            margin: 50px auto;
+        }
+
+        input, select, button {
+            padding: 10px;
+            margin: 8px 0;
+            width: 100%;
+        }
+
+        button {
+            background: #1769aa;
+            color: white;
+            border: 0;
+            cursor: pointer;
+        }
+
+        pre {
+            background: #eee;
+            padding: 15px;
+            white-space: pre-wrap;
+        }
+
+        #deployment-info {
+            background: #e8f5e9;
+            padding: 12px;
+            border-radius: 5px;
+            overflow-wrap: anywhere;
+        }
     </style>
 </head>
 <body>
     <h1>Functional Testing App</h1>
+
     <p>Choose a function and enter arguments as JSON.</p>
+
+    <!-- Deployment information -->
+    <p id="deployment-info">Checking deployment...</p>
 
     <select id="function">
         {% for name in functions %}
@@ -38,14 +69,17 @@ HTML = """
 
     <input id="args" value="[]" placeholder='Arguments, e.g. [25]'>
     <input id="kwargs" value="{}" placeholder='Keyword arguments, e.g. {}'>
+
     <button onclick="runFunction()">Run Function</button>
 
     <h3>Result</h3>
     <pre id="result">Your result will appear here.</pre>
 
     <script>
+    // Existing function: Run a Python function
     async function runFunction() {
         const result = document.getElementById("result");
+
         try {
             const response = await fetch("/run", {
                 method: "POST",
@@ -56,12 +90,40 @@ HTML = """
                     kwargs: JSON.parse(document.getElementById("kwargs").value)
                 })
             });
+
             const data = await response.json();
             result.textContent = JSON.stringify(data, null, 2);
+
         } catch (error) {
             result.textContent = "Error: " + error.message;
         }
     }
+
+    // New function: Display deployment information
+    async function showDeploymentInfo() {
+        const info = document.getElementById("deployment-info");
+
+        try {
+            const response = await fetch("/health");
+
+            if (!response.ok) {
+                throw new Error("Health check failed");
+            }
+
+            const data = await response.json();
+
+            info.textContent =
+                "Deployment Status: " + data.status +
+                " | Deployed Commit: " + data.commit;
+
+        } catch (error) {
+            info.textContent =
+                "Could not load deployment information.";
+        }
+    }
+
+    // Load deployment information when the page opens
+    showDeploymentInfo();
     </script>
 </body>
 </html>
@@ -89,13 +151,13 @@ def run_function():
 
         # Convert JSON lists into Python sets for common_items
         if name == "common_items":
-         args = [set(args[0]), set(args[1])]
+            args = [set(args[0]), set(args[1])]
 
         result = getattr(target, name)(*args, **kwargs)
 
         # Convert Python set into a JSON-compatible list
         if isinstance(result, set):
-         result = sorted(result)
+            result = sorted(result)
 
         return jsonify({
             "success": True,
@@ -118,8 +180,15 @@ def health():
         or os.environ.get("GITHUB_SHA")
         or "local"
     )
-    return jsonify({"status": "ok", "commit": commit})
+
+    return jsonify({
+        "status": "ok",
+        "commit": commit
+    })
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")))
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", "5000"))
+    )
