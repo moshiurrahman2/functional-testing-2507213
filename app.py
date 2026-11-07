@@ -54,7 +54,7 @@ HTML = """
     </style>
 </head>
 <body>
-    <h1>Functional Testing App</h1>
+    <h1>Functional Testing Project - Deployment Demo</h1>
 
     <p>Choose a function and enter arguments as JSON.</p>
 
