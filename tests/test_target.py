@@ -442,6 +442,4 @@ def test_average_empty():
 def test_average_wrong_type():
     with pytest.raises(TypeError):
         target.average([1, "2", 3])
-
-def test_demo_deployment_block():
-    assert False, "Intentional failure for deployment demo"
+        
