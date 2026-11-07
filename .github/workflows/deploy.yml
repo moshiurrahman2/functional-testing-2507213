@@ -1,0 +1,144 @@
+
+name: Render Deployment Pipeline
+
+on:
+  workflow_run:
+    workflows:
+      - Functional Testing CI
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+
+  # Gate: only continue after the CI workflow succeeds.
+  test:
+    name: test
+    if: >-
+     github.event.workflow_run.conclusion == 'success' &&
+     github.event.workflow_run.event == 'push' &&
+     github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify successful CI run
+        env:
+          CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          CI_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          CI_EVENT: ${{ github.event.workflow_run.event }}
+        run: |
+          echo "CI branch: $CI_BRANCH"
+          echo "CI event: $CI_EVENT"
+          echo "CI commit: $CI_SHA"
+
+          test "$CI_BRANCH" = "main"
+          test "$CI_EVENT" = "push"
+          test -n "$CI_SHA"
+
+  # Deploy only after the successful test gate.
+  deploy:
+    name: deploy
+    needs: test
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render deployment
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -e
+
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL secret is missing."
+            exit 1
+          fi
+
+          echo "Triggering Render deployment for $DEPLOY_SHA"
+
+          curl --fail --silent --show-error \
+            --get \
+            --data-urlencode "ref=${DEPLOY_SHA}" \
+            "$RENDER_DEPLOY_HOOK_URL"
+
+  # Wait until Render reports the exact commit that passed CI.
+  smoke-test:
+    name: smoke-test
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    env:
+      BASE_URL: https://functional-testing-2507213-2.onrender.com
+      DEPLOY_SHA: ${{ github.event.workflow_run.head_sha }}
+
+    steps:
+      - name: Wait for the correct deployed commit
+        run: |
+          set -e
+
+          echo "Waiting for Render to deploy $DEPLOY_SHA"
+
+          for attempt in $(seq 1 60); do
+
+            if curl --fail --silent \
+              "$BASE_URL/health" -o health.json; then
+
+              echo "Health response:"
+              cat health.json
+
+              if jq -e --arg sha "$DEPLOY_SHA" \
+                '.status == "ok" and .commit == $sha' \
+                health.json > /dev/null; then
+
+                echo "Correct commit is live!"
+                exit 0
+              fi
+            fi
+
+            echo "Deployment not ready. Attempt $attempt/60"
+            sleep 10
+          done
+
+          echo "Deployment SHA did not match."
+          exit 1
+
+      - name: Smoke test 1 - is_adult
+        run: |
+          response=$(curl --fail --silent --show-error \
+            -X POST "$BASE_URL/run" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"is_adult","args":[20],"kwargs":{}}')
+
+          echo "$response"
+
+          echo "$response" | jq -e \
+            '(.success == true) and (.result == true)'
+
+      - name: Smoke test 2 - count_vowels
+        run: |
+          response=$(curl --fail --silent --show-error \
+            -X POST "$BASE_URL/run" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"count_vowels","args":["hello"],"kwargs":{}}')
+
+          echo "$response"
+
+          echo "$response" | jq -e \
+            '(.success == true) and (.result == 2)'
+
+      - name: Smoke test 3 - divide
+        run: |
+          response=$(curl --fail --silent --show-error \
+            -X POST "$BASE_URL/run" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"divide","args":[10,2],"kwargs":{}}')
+
+          echo "$response"
+
+          echo "$response" | jq -e \
+            '(.success == true) and (.result == 5)'
