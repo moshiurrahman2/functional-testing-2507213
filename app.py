@@ -87,7 +87,15 @@ def run_function():
         if not isinstance(args, list) or not isinstance(kwargs, dict):
             return jsonify({"error": "Invalid arguments format"}), 400
 
+        # Convert JSON lists into Python sets for common_items
+        if name == "common_items":
+         args = [set(args[0]), set(args[1])]
+
         result = getattr(target, name)(*args, **kwargs)
+
+        # Convert Python set into a JSON-compatible list
+        if isinstance(result, set):
+         result = sorted(result)
 
         return jsonify({
             "success": True,
