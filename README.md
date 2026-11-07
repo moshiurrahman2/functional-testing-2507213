@@ -134,3 +134,12 @@ These are potential application-level issues identified during code review, not 
 ## Author
 
 Moshiur Rahman
+
+## Troubleshooting
+
+If the application does not start:
+
+1. Activate the virtual environment.
+2. Install dependencies using pip install -r requirements.txt.
+3. Run python app.py.
+4. Open http://127.0.0.1:5000/ in your browser.
